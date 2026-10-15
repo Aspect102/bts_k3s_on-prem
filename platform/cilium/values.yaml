@@ -17,6 +17,10 @@ hubble:
     enabled: true
   ui:
     enabled: true
+    service:
+      type: LoadBalancer
+      annotations:
+        lbipam.cilium.io/ips: 192.168.20.11
   tls:
     auto:
       method: cronJob
