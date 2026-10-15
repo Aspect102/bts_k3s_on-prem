@@ -1,0 +1,62 @@
+apiVersion: cilium.io/v2
+kind: CiliumBGPClusterConfig
+metadata:
+  name: bts
+spec:
+  nodeSelector:
+    matchLabels:
+      topology.kubernetes.io/zone: su-srv-02
+  bgpInstances:
+    - name: bts
+      localASN: 64516
+      peers:
+        - name: su-srv-02-gw
+          peerASN: 64517
+          peerAddress: 10.10.200.254
+          peerConfigRef:
+            name: gw
+---
+apiVersion: cilium.io/v2
+kind: CiliumBGPPeerConfig
+metadata:
+  name: gw
+spec:
+  timers:
+    holdTimeSeconds: 90
+    keepAliveTimeSeconds: 30
+  gracefulRestart:
+    enabled: true
+    restartTimeSeconds: 120
+  families:
+    - afi: ipv4
+      safi: unicast
+      advertisements:
+        matchLabels:
+          advertise: bgp
+---
+apiVersion: cilium.io/v2
+kind: CiliumBGPAdvertisement
+metadata:
+  name: lb-ips
+  labels:
+    advertise: bgp
+spec:
+  advertisements:
+    - advertisementType: Service
+      service:
+        addresses:
+          - LoadBalancerIP
+      selector:
+        matchExpressions:
+          - key: never-used
+            operator: NotIn
+            values: ["never-used-value"]
+---
+apiVersion: cilium.io/v2
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: bts-lb
+spec:
+  blocks:
+    - start: 192.168.20.1
+      stop: 192.168.20.254
