@@ -1,3 +1,4 @@
+#testing autoheal
 apiVersion: cilium.io/v2
 kind: CiliumBGPClusterConfig
 metadata:
