@@ -14,7 +14,14 @@ spec:
         app: nginx
     spec:
       containers:
-        - name: nginx
-          image: nginx:1.29
+        - name: python-http
+          image: python:3.13-slim
+          command:
+            - python
+            - -m
+            - http.server
+            - "80"
+            - --bind
+            - 0.0.0.0
           ports:
             - containerPort: 80
