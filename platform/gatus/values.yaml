@@ -1,0 +1,21 @@
+service:
+  type: LoadBalancer
+  port: 80
+  annotations:
+    lbipam.cilium.io/ips: "192.168.20.12"
+
+config:
+  endpoints:
+    - name: nginx-internal
+      group: apps
+      url: http://nginx.nginx.svc.cluster.local
+      interval: 1m
+      conditions:
+        - "[STATUS] == 200"
+
+    - name: nginx-loadbalancer
+      group: apps
+      url: http://192.168.20.5
+      interval: 1m
+      conditions:
+        - "[STATUS] == 200"
