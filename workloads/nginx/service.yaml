@@ -4,7 +4,7 @@ metadata:
   name: nginx
   namespace: nginx
   annotations:
-    lbipam.cilium.io/ips: 192.168.20.5
+    lbipam.cilium.io/ips: 192.168.20.6
 spec:
   type: LoadBalancer
   selector:
