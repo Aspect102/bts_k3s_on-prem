@@ -20,8 +20,8 @@ spec:
             - python
             - -m
             - http.server
-            - "80"
+            - "81"
             - --bind
             - 0.0.0.0
           ports:
-            - containerPort: 80
+            - containerPort: 81
