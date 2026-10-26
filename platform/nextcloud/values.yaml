@@ -1,5 +1,46 @@
+nextcloud:
+  # 1. Admin Credentials
+  username: admin
+  password: admintest
+
+  # 2. Host and Trusted Domains
+  # Must match the FQDN clients use to reach Traefik
+  host: "cloud.yourdomain.com"
+  trustedDomains:
+    - "cloud.yourdomain.com"
+    - "192.168.20.15"
+
+  # 3. Inform Nextcloud that external Traefik handles HTTPS
+  # This sets overwriteprotocol => 'https' to avoid redirect loops
+  phpClientHttpsFix:
+    enabled: true
+    protocol: https
+
+  # 4. Trust the upstream Traefik IP so Nextcloud accepts X-Forwarded-* headers
+  # Replace 192.168.20.X with the actual LAN IP of your Traefik server/node
+  configs:
+    proxy.config.php: |-
+      <?php
+      $CONFIG = array (
+        'trusted_proxies' => array (
+          0 => '192.168.20.0/24', # Subnet or specific IP of your Traefik host
+        ),
+        'forwarded_for_headers' => array('HTTP_X_FORWARDED_FOR'),
+      );
+
+# 5. Persistence (Required so database and files survive pod restarts)
+persistence:
+  enabled: true
+  size: 20Gi
+  # storageClass: "local-path" # Set if needed
+
+# 6. Service exposed via Cilium BGP/L2 IPAM
 service:
   type: LoadBalancer
   port: 8080
   annotations:
     lbipam.cilium.io/ips: "192.168.20.15"
+
+# 7. Internal Ingress disabled (Traefik handles entry upstream)
+ingress:
+  enabled: false
