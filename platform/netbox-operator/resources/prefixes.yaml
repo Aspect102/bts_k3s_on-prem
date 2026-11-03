@@ -8,7 +8,7 @@ metadata:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   prefix: "10.240.0.0/16"
-  description: Cilium cluster-pool pod CIDR
+  description: "su-srv-02: Cilium cluster-pool pod CIDR"
   preserveInNetbox: true
 ---
 apiVersion: netbox.dev/v1
@@ -20,5 +20,5 @@ metadata:
     argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
 spec:
   prefix: "192.168.20.0/24"
-  description: Cilium LoadBalancer IP pool
+  description: "su-srv-02: Cilium LoadBalancer IP pool"
   preserveInNetbox: true
