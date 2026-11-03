@@ -1,0 +1,24 @@
+# Register configured ranges only; this does not discover Cilium allocations.
+apiVersion: netbox.dev/v1
+kind: Prefix
+metadata:
+  name: cilium-pod-pool
+  namespace: netbox-operator
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  prefix: "10.240.0.0/16"
+  description: "su-srv-02: Cilium cluster-pool pod CIDR"
+  preserveInNetbox: true
+---
+apiVersion: netbox.dev/v1
+kind: Prefix
+metadata:
+  name: cilium-loadbalancer-pool
+  namespace: netbox-operator
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  prefix: "192.168.20.0/24"
+  description: "su-srv-02: Cilium LoadBalancer IP pool"
+  preserveInNetbox: true

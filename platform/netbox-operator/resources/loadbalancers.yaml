@@ -1,0 +1,60 @@
+# Register configured IPs only; this does not discover live Service allocations.
+apiVersion: netbox.dev/v1
+kind: IpAddress
+metadata:
+  name: nginx-loadbalancer
+  namespace: netbox-operator
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  ipAddress: "192.168.20.6/32"
+  description: "Kubernetes LoadBalancer: nginx"
+  preserveInNetbox: true
+---
+apiVersion: netbox.dev/v1
+kind: IpAddress
+metadata:
+  name: argocd-loadbalancer
+  namespace: netbox-operator
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  ipAddress: "192.168.20.10/32"
+  description: "Kubernetes LoadBalancer: Argo CD"
+  preserveInNetbox: true
+---
+apiVersion: netbox.dev/v1
+kind: IpAddress
+metadata:
+  name: hubble-ui-loadbalancer
+  namespace: netbox-operator
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  ipAddress: "192.168.20.11/32"
+  description: "Kubernetes LoadBalancer: Hubble UI"
+  preserveInNetbox: true
+---
+apiVersion: netbox.dev/v1
+kind: IpAddress
+metadata:
+  name: gatus-loadbalancer
+  namespace: netbox-operator
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  ipAddress: "192.168.20.12/32"
+  description: "Kubernetes LoadBalancer: Gatus"
+  preserveInNetbox: true
+---
+apiVersion: netbox.dev/v1
+kind: IpAddress
+metadata:
+  name: nextcloud-loadbalancer
+  namespace: netbox-operator
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  ipAddress: "192.168.20.15/32"
+  description: "Kubernetes LoadBalancer: Nextcloud"
+  preserveInNetbox: true
