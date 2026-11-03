@@ -1,0 +1,11 @@
+netbox:
+  enabled: false
+
+host: "192.168.10.125"
+https: false
+
+auth:
+  existingSecret: netbox-operator-auth
+  apiToken: ""
+
+restorationHashFieldName: netboxOperatorRestorationHash

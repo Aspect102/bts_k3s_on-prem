@@ -16,6 +16,7 @@ spec:
     - repoURL: git@github.com:Aspect102/bts_k3s_on-prem.git
       targetRevision: main
       ref: values
+      path: platform/netbox-operator/resources
   destination:
     server: https://kubernetes.default.svc
     namespace: netbox-operator
