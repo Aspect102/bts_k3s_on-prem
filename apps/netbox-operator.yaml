@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: netbox-operator
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: ghcr.io/netbox-community/netbox-chart
+      chart: netbox-operator
+      targetRevision: 1.2.203
+      helm:
+        releaseName: netbox-operator
+        valueFiles:
+          - $values/platform/netbox-operator/values.yaml
+    - repoURL: git@github.com:Aspect102/bts_k3s_on-prem.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: netbox-operator
+  syncPolicy:
+    syncOptions:
+      - ServerSideApply=true
+      - CreateNamespace=true
+    automated:
+      prune: true
+      selfHeal: true
