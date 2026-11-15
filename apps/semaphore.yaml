@@ -4,6 +4,7 @@ metadata:
   name: semaphore
   namespace: argocd
 spec:
+  project: default
   sources:
     - repoURL: https://semaphoreui.github.io/charts
       chart: semaphore
