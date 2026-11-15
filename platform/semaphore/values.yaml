@@ -1,0 +1,9 @@
+service:
+  type: LoadBalancer
+  port: 80
+  annotations:
+    lbipam.cilium.io/ips: "192.168.20.13"
+
+admin:
+  create: true
+  existingSecret: semaphore-admin
