@@ -8,6 +8,27 @@ admin:
   create: true
   existingSecret: semaphore-admin
 
+# The chart generates cookieHash, cookieEncryption and accesskeyEncryption with
+# randAlphaNum unless the values already exist, reading the existing Secret with
+# `lookup`. Argo CD renders charts offline, so `lookup` returns nothing and every
+# re-render produces new keys: the Secret changes, the pod restarts, and every
+# stored access key (git SSH keys, vault passwords) silently becomes
+# undecryptable ("cannot decrypt access key, perhaps encryption key was
+# changed").
+#
+# They live in resources/semaphore-keys-sealed-secret.yaml instead, so a sync
+# cannot rotate them.
+secrets:
+  existingSecret: semaphore-keys
+
+# Semaphore builds the environment for ansible-playbook from PATH plus this list
+# (see getEnvironmentVars in db_lib/LocalApp.go), so variables set on the
+# container do not reach the task on their own. The incus client needs both.
+config:
+  forwarded_env_vars:
+    - LD_LIBRARY_PATH
+    - INCUS_CONF
+
 # The incus CLI, which community.general.incus shells out to for both the
 # on-prem inventory and the connection to each host.
 #

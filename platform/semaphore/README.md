@@ -24,6 +24,38 @@ The environment variable is required: a collection inventory plugin is never
 auto-detected, and a task runs with the collection as its working directory, so
 the inventory repo's own `ansible.cfg` is not read.
 
+`LD_LIBRARY_PATH` and `INCUS_CONF` do not need to go in the environment: the
+chart forwards them from the container (see `config.forwarded_env_vars` below),
+because Semaphore builds the task environment from `PATH` plus that list.
+
+## Encryption keys
+
+`semaphore-keys` is sealed in `resources/` and referenced by
+`secrets.existingSecret`. It holds `cookieHash`, `cookieEncryption` and
+`accesskeyEncryption`.
+
+Do not remove it and go back to letting the chart generate them. The chart uses
+`lookup` to reuse existing values, which does not work under Argo CD's offline
+rendering, so every re-render produced new keys. The effect was silent and nasty:
+the Secret changed, the pod restarted, and every stored access key (git SSH
+keys, vault passwords) became undecryptable with `cannot decrypt access key,
+perhaps encryption key was changed`. It cost one SSH key before it was found.
+
+To rotate deliberately, create the Secret, reseal it, and re-enter every stored
+credential afterwards:
+
+```bash
+kubectl -n semaphore create secret generic semaphore-keys \
+  --from-literal=cookieHash="$(head -c 32 /dev/urandom | base64 | base64)" \
+  --from-literal=cookieEncryption="$(head -c 32 /dev/urandom | base64 | base64)" \
+  --from-literal=accesskeyEncryption="$(head -c 32 /dev/urandom | base64 | base64)" \
+  --dry-run=client -o yaml > /tmp/semaphore-keys.yaml
+
+kubeseal --controller-name sealed-secrets --controller-namespace kube-system \
+  --format yaml < /tmp/semaphore-keys.yaml \
+  > platform/semaphore/resources/semaphore-keys-sealed-secret.yaml
+```
+
 ## The incus client
 
 `community.general.incus` shells out to the `incus` CLI for both inventory and
