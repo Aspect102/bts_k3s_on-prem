@@ -7,3 +7,62 @@ service:
 admin:
   create: true
   existingSecret: semaphore-admin
+
+# The incus CLI, which community.general.incus shells out to for both the
+# on-prem inventory and the connection to each host.
+#
+# The image is Alpine and there is no registry to build a derived image from, so
+# the client is unpacked from Alpine's repository into an emptyDir at pod start.
+# incus-client is musl-native, matching the image.
+extraInitContainers:
+  - name: incus-client
+    image: alpine:3.24
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        set -eu
+        mkdir -p /out/etc/apk
+        cp -a /etc/apk/. /out/etc/apk/
+        apk add --root /out --initdb --no-cache --no-scripts incus-client
+        cp /out/usr/bin/incus /incus/incus
+        mkdir -p /incus/lib
+        cp -a /out/usr/lib/. /incus/lib/ 2>/dev/null || true
+        cp -a /out/lib/. /incus/lib/ 2>/dev/null || true
+        chmod 0755 /incus/incus
+    volumeMounts:
+      - name: incus-client
+        mountPath: /incus
+
+extraVolumes:
+  - name: incus-client
+    emptyDir: {}
+  # Client certificate for the `bts` remote, sealed in
+  # resources/incus-client-sealed-secret.yaml.
+  - name: incus-client-config
+    secret:
+      secretName: semaphore-incus-client
+      items:
+        - key: config.yml
+          path: config.yml
+        - key: client.crt
+          path: client.crt
+        - key: client.key
+          path: client.key
+        # The remote's own certificate, for a self-signed HTTPS endpoint.
+        - key: bts.crt
+          path: servercerts/bts.crt
+
+extraVolumeMounts:
+  # /usr/local/sbin is on the image's PATH and does not exist inside it, so the
+  # client lands on PATH without shadowing any binary in the image.
+  - name: incus-client
+    mountPath: /usr/local/sbin
+  - name: incus-client-config
+    mountPath: /etc/incus
+    readOnly: true
+
+extraEnvVariables:
+  # The client reads its config, and the certificate inside it, from here.
+  INCUS_CONF: /etc/incus
+  # The libraries that came out of Alpine sit alongside the binary.
+  LD_LIBRARY_PATH: /usr/local/sbin/lib
